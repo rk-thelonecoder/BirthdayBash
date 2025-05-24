@@ -1,89 +1,66 @@
 let highestZ = 1;
 
 class Paper {
-  holdingPaper = false;
-  touchStartX = 0;
-  touchStartY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
-  touchEndX = 0;
-  touchEndY = 0;
-  prevTouchX = 0;
-  prevTouchY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
-  rotating = false;
+  constructor(paper) {
+    this.paper = paper;
+    this.holdingPaper = false;
+    this.startX = 0;
+    this.startY = 0;
+    this.currentX = 0;
+    this.currentY = 0;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.rotation = Math.random() * 30 - 15;
 
-  init(paper) {
-    paper.addEventListener('touchmove', (e) => {
+    this.init();
+  }
+
+  init() {
+    this.paper.style.touchAction = "none"; // Prevent browser gestures
+
+    this.paper.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        this.holdingPaper = true;
+        this.startX = e.touches[0].clientX - this.offsetX;
+        this.startY = e.touches[0].clientY - this.offsetY;
+
+        this.paper.style.zIndex = highestZ++;
+      }
+    });
+
+    this.paper.addEventListener("touchmove", (e) => {
       e.preventDefault();
-      if(!this.rotating) {
-        this.touchMoveX = e.touches[0].clientX;
-        this.touchMoveY = e.touches[0].clientY;
-        
-        this.velX = this.touchMoveX - this.prevTouchX;
-        this.velY = this.touchMoveY - this.prevTouchY;
-      }
-        
-      const dirX = e.touches[0].clientX - this.touchStartX;
-      const dirY = e.touches[0].clientY - this.touchStartY;
-      const dirLength = Math.sqrt(dirX*dirX+dirY*dirY);
-      const dirNormalizedX = dirX / dirLength;
-      const dirNormalizedY = dirY / dirLength;
 
-      const angle = Math.atan2(dirNormalizedY, dirNormalizedX);
-      let degrees = 180 * angle / Math.PI;
-      degrees = (360 + Math.round(degrees)) % 360;
-      if(this.rotating) {
-        this.rotation = degrees;
+      if (this.holdingPaper && e.touches.length === 1) {
+        this.currentX = e.touches[0].clientX - this.startX;
+        this.currentY = e.touches[0].clientY - this.startY;
+
+        this.offsetX = this.currentX;
+        this.offsetY = this.currentY;
+
+        this.updateTransform();
       }
 
-      if(this.holdingPaper) {
-        if(!this.rotating) {
-          this.currentPaperX += this.velX;
-          this.currentPaperY += this.velY;
-        }
-        this.prevTouchX = this.touchMoveX;
-        this.prevTouchY = this.touchMoveY;
-
-        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+      // Optional: Simulate rotation with 2 fingers
+      if (e.touches.length === 2) {
+        const dx = e.touches[1].clientX - e.touches[0].clientX;
+        const dy = e.touches[1].clientY - e.touches[0].clientY;
+        this.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
+        this.updateTransform();
       }
-    })
-
-    paper.addEventListener('touchstart', (e) => {
-      if(this.holdingPaper) return; 
-      this.holdingPaper = true;
-      
-      paper.style.zIndex = highestZ;
-      highestZ += 1;
-      
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartY = e.touches[0].clientY;
-      this.prevTouchX = this.touchStartX;
-      this.prevTouchY = this.touchStartY;
-    });
-    paper.addEventListener('touchend', () => {
-      this.holdingPaper = false;
-      this.rotating = false;
     });
 
-    // For two-finger rotation on touch screens
-    paper.addEventListener('gesturestart', (e) => {
-      e.preventDefault();
-      this.rotating = true;
+    this.paper.addEventListener("touchend", (e) => {
+      if (e.touches.length === 0) {
+        this.holdingPaper = false;
+      }
     });
-    paper.addEventListener('gestureend', () => {
-      this.rotating = false;
-    });
+  }
+
+  updateTransform() {
+    this.paper.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px) rotate(${this.rotation}deg)`;
   }
 }
 
-const papers = Array.from(document.querySelectorAll('.paper'));
-
-papers.forEach(paper => {
-  const p = new Paper();
-  p.init(paper);
-});
+// Initialize all paper elements
+document.querySelectorAll(".paper").forEach((el) => new Paper(el));
