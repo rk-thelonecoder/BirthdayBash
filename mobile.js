@@ -1,66 +1,83 @@
 let highestZ = 1;
 
 class Paper {
-  constructor(paper) {
-    this.paper = paper;
-    this.holdingPaper = false;
-    this.startX = 0;
-    this.startY = 0;
-    this.currentX = 0;
-    this.currentY = 0;
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.rotation = Math.random() * 30 - 15;
+  holdingPaper = false;
+  touchStartX = 0;
+  touchStartY = 0;
+  touchMoveX = 0;
+  touchMoveY = 0;
+  prevTouchX = 0;
+  prevTouchY = 0;
+  velX = 0;
+  velY = 0;
+  rotation = Math.random() * 30 - 15;
+  currentPaperX = 0;
+  currentPaperY = 0;
+  rotating = false;
 
-    this.init();
-  }
+  init(paper) {
+    paper.addEventListener('touchstart', (e) => {
+      if(this.holdingPaper) return;
+      this.holdingPaper = true;
 
-  init() {
-    this.paper.style.touchAction = "none"; // Prevent browser gestures
-
-    this.paper.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) {
-        this.holdingPaper = true;
-        this.startX = e.touches[0].clientX - this.offsetX;
-        this.startY = e.touches[0].clientY - this.offsetY;
-
-        this.paper.style.zIndex = highestZ++;
-      }
+      paper.style.zIndex = highestZ++;
+      
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+      this.prevTouchX = touch.clientX;
+      this.prevTouchY = touch.clientY;
     });
 
-    this.paper.addEventListener("touchmove", (e) => {
+    paper.addEventListener('touchmove', (e) => {
       e.preventDefault();
+      if(!this.holdingPaper) return;
 
-      if (this.holdingPaper && e.touches.length === 1) {
-        this.currentX = e.touches[0].clientX - this.startX;
-        this.currentY = e.touches[0].clientY - this.startY;
+      const touch = e.touches[0];
+      this.touchMoveX = touch.clientX;
+      this.touchMoveY = touch.clientY;
 
-        this.offsetX = this.currentX;
-        this.offsetY = this.currentY;
+      if(!this.rotating) {
+        this.velX = this.touchMoveX - this.prevTouchX;
+        this.velY = this.touchMoveY - this.prevTouchY;
 
-        this.updateTransform();
+        this.currentPaperX += this.velX;
+        this.currentPaperY += this.velY;
       }
 
-      // Optional: Simulate rotation with 2 fingers
-      if (e.touches.length === 2) {
-        const dx = e.touches[1].clientX - e.touches[0].clientX;
-        const dy = e.touches[1].clientY - e.touches[0].clientY;
-        this.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
-        this.updateTransform();
+      // Calculate rotation angle if rotating
+      if(this.rotating) {
+        const dirX = this.touchMoveX - this.touchStartX;
+        const dirY = this.touchMoveY - this.touchStartY;
+        const angle = Math.atan2(dirY, dirX);
+        this.rotation = (angle * 180 / Math.PI + 360) % 360;
       }
+
+      this.prevTouchX = this.touchMoveX;
+      this.prevTouchY = this.touchMoveY;
+
+      paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
     });
 
-    this.paper.addEventListener("touchend", (e) => {
-      if (e.touches.length === 0) {
-        this.holdingPaper = false;
-      }
+    paper.addEventListener('touchend', () => {
+      this.holdingPaper = false;
+      this.rotating = false;
     });
-  }
 
-  updateTransform() {
-    this.paper.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px) rotate(${this.rotation}deg)`;
+    // For two-finger rotation on supported devices (optional)
+    paper.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+      this.rotating = true;
+    });
+    paper.addEventListener('gestureend', (e) => {
+      this.rotating = false;
+    });
   }
 }
 
-// Initialize all paper elements
-document.querySelectorAll(".paper").forEach((el) => new Paper(el));
+const papers = Array.from(document.querySelectorAll('.paper'));
+
+papers.forEach(paper => {
+  const p = new Paper();
+  p.init(paper);
+});
