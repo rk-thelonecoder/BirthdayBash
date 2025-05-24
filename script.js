@@ -15,6 +15,9 @@ class Paper {
   currentPaperY = 0;
   rotating = false;
 
+  // Throttle for confetti so it triggers max once every 50ms
+  lastConfettiTime = 0;
+
   init(paper) {
     document.addEventListener('mousemove', (e) => {
       if(!this.rotating) {
@@ -47,6 +50,27 @@ class Paper {
         this.prevMouseY = this.mouseY;
 
         paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+
+        // Cherry blossom confetti on drag, throttled to once every 50ms
+        const now = Date.now();
+        if (typeof confetti === 'function' && (now - this.lastConfettiTime > 50)) {
+          this.lastConfettiTime = now;
+          confetti({
+            particleCount: 7,
+            startVelocity: 5,
+            spread: 45,
+            ticks: 120,
+            gravity: 0.1,
+            decay: 0.9,
+            origin: {
+              x: this.mouseX / window.innerWidth,
+              y: this.mouseY / window.innerHeight
+            },
+            colors: ['#FFC0CB', '#FFB7C5', '#FF69B4', '#FF85A2'],
+            shapes: ['circle'],
+            scalar: 0.8
+          });
+        }
       }
     })
 
