@@ -138,6 +138,7 @@ function playMusicOnInteraction() {
   }
   document.removeEventListener("click", playMusicOnInteraction);
   document.removeEventListener("touchstart", playMusicOnInteraction);
+  
 }
 
 document.addEventListener("click", playMusicOnInteraction);
