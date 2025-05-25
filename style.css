@@ -10,7 +10,8 @@ body {
   justify-content: center;
 
   background-size: 1000px;
-  background-image: url("https://images.pexels.com/photos/10533140/pexels-photo-10533140.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+ /* background-image: url("https://images.pexels.com/photos/10533140/pexels-photo-10533140.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");*/
+  background-image: url("images/pexels-photo-10533140.jpeg");
   background-position: center center;
 }
 
