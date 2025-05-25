@@ -114,3 +114,4 @@ function playMusicOnInteraction() {
 }
 
 document.addEventListener("click", playMusicOnInteraction);
+
