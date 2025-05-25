@@ -10,12 +10,12 @@ body {
   justify-content: center;
 
   background-size: 1000px;
-  background-image: url("https://www.psdgraphics.com/wp-content/uploads/2022/01/white-math-paper-texture.jpg");
+  background-image: url("https://images.pexels.com/photos/10533140/pexels-photo-10533140.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
   background-position: center center;
 }
 
 .paper {
-  background-image: url("https://i0.wp.com/textures.world/wp-content/uploads/2018/10/2-Millimeter-Paper-Background-copy.jpg?ssl=1");
+  background-image: url("https://plus.unsplash.com/premium_photo-1670271544153-dd9933f0f119?q=80&w=2051&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
   background-size: 500px;
   background-position: center center;
   padding: 20px 100px;
@@ -71,9 +71,27 @@ img {
 p {
   font-family: 'Zeyada';
   font-size: 40px;
-  color: rgb(0,0,100);
+  color: rgb(237, 237, 247);
   opacity: 0.75;
   user-select: none;
   
    filter: drop-shadow(2px 1.5px 1px rgba(0,0,105,0.9));
 }
+
+.paper.final {
+  animation: fadeSlideUp 1s ease-out 2s forwards; /* Appears after 2 seconds */
+}
+
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+

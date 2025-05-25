@@ -104,3 +104,13 @@ papers.forEach(paper => {
   const p = new Paper();
   p.init(paper);
 });
+
+function playMusicOnInteraction() {
+  const audio = document.getElementById("bg-music");
+  audio.play().catch((e) => {
+    console.log("Autoplay failed:", e);
+  });
+  document.removeEventListener("click", playMusicOnInteraction);
+}
+
+document.addEventListener("click", playMusicOnInteraction);
